@@ -1,0 +1,111 @@
+<div class="container mx-auto max-w-2xl">
+  <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-8">
+    <h1 class="text-3xl font-bold text-gray-900 dark:text-white">{{ pageTitle() }}</h1>
+    <div class="border-b border-gray-200 dark:border-gray-700 my-6"></div>
+    
+    <form [formGroup]="addEmployeeForm" (ngSubmit)="handleAddEmployee()" class="space-y-4">
+      
+      <div>
+        <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Full Name</label>
+        <input id="name" formControlName="name" placeholder="e.g. John Doe" class="w-full p-2 border border-gray-300 rounded-md dark:bg-gray-700 dark:border-gray-600">
+      </div>
+      
+      <div>
+        <label for="employeeId" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Employee ID (Required)</label>
+        <input id="employeeId" formControlName="employeeId" placeholder="e.g. HYV001" type="text" class="w-full p-2 border border-gray-300 rounded-md dark:bg-gray-700 dark:border-gray-600">
+         @if (addEmployeeForm.get('employeeId')?.invalid && addEmployeeForm.get('employeeId')?.touched) {
+          <p class="text-red-500 text-xs mt-1">Employee ID is required.</p>
+        }
+      </div>
+
+      @if (addEmployeeForm.get('role')?.value !== 'contractual employee') {
+        <div>
+          <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email (Optional)</label>
+          <input id="email" formControlName="email" placeholder="e.g. john.doe@example.com" type="email" class="w-full p-2 border border-gray-300 rounded-md dark:bg-gray-700 dark:border-gray-600">
+          @if (addEmployeeForm.get('email')?.invalid && addEmployeeForm.get('email')?.touched) {
+            <p class="text-red-500 text-xs mt-1">Please enter a valid email address.</p>
+          }
+        </div>
+      }
+
+      <div>
+        <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Password</label>
+        <input id="password" formControlName="password" placeholder="Must be at least 6 characters" type="password" class="w-full p-2 border border-gray-300 rounded-md dark:bg-gray-700 dark:border-gray-600">
+        @if (addEmployeeForm.get('password')?.invalid && addEmployeeForm.get('password')?.touched) {
+          <p class="text-red-500 text-xs mt-1">Password is required and must be at least 6 characters.</p>
+        }
+      </div>
+
+      @if (addEmployeeForm.get('role')?.value === 'contractual employee') {
+        <div>
+          <label for="contractor" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Contractor</label>
+          <div class="flex items-center space-x-2">
+            <select id="contractor" formControlName="contractor" class="flex-grow p-2 border border-gray-300 rounded-md dark:bg-gray-700 dark:border-gray-600">
+              <option value="" disabled>Select Contractor</option>
+              @for(c of contractors(); track c) {
+                <option [value]="c">{{ c }}</option>
+              }
+            </select>
+          </div>
+          @if (addEmployeeForm.get('contractor')?.invalid && addEmployeeForm.get('contractor')?.touched) {
+            <p class="text-red-500 text-xs mt-1">Contractor name is required for this role.</p>
+          }
+        </div>
+      }
+
+      @if (addEmployeeForm.get('role')?.value === 'employee') {
+        <div>
+          <label for="department" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Department</label>
+          <div class="flex items-center space-x-2">
+            <select id="department" formControlName="department" class="flex-grow p-2 border border-gray-300 rounded-md dark:bg-gray-700 dark:border-gray-600">
+              <option value="" disabled>Select Department</option>
+              @for(dept of departments(); track dept) {
+                <option [value]="dept">{{ dept }}</option>
+              }
+            </select>
+            <button (click)="openAddDepartmentModal()" type="button" class="px-4 py-2 text-sm font-medium text-white bg-gray-600 rounded-md hover:bg-gray-700">Add</button>
+          </div>
+           @if (addEmployeeForm.get('department')?.invalid && addEmployeeForm.get('department')?.touched) {
+            <p class="text-red-500 text-xs mt-1">Department is required for this role.</p>
+          }
+        </div>
+      }
+
+      <div>
+        <label for="role" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Role</label>
+        <select id="role" formControlName="role" class="w-full p-2 border border-gray-300 rounded-md dark:bg-gray-700 dark:border-gray-600">
+          @for(role of filteredRoles(); track role) {
+            <option [value]="role" class="capitalize">{{ role }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="flex justify-end space-x-4 pt-4">
+        <button type="button" (click)="cancel()" class="px-4 py-2 rounded font-semibold text-gray-700 bg-gray-200 hover:bg-gray-300 dark:text-gray-300 dark:bg-gray-600 dark:hover:bg-gray-500">Cancel</button>
+        <button type="submit" [disabled]="addEmployeeForm.invalid" class="px-4 py-2 rounded font-semibold text-white bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400">Add Employee</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Add Department Modal -->
+@if (isAddDepartmentModalOpen()) {
+  <div class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 animate-fadeIn">
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 w-full max-w-md m-4">
+      <h3 class="text-2xl font-bold text-gray-800 dark:text-white mb-6">Add New Department</h3>
+      <form [formGroup]="newDepartmentForm" (ngSubmit)="handleAddNewDepartment()" class="space-y-4">
+        <div>
+          <label for="new-department-name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Department Name</label>
+          <input id="new-department-name" formControlName="name" class="w-full p-2 border border-gray-300 rounded-md dark:bg-gray-700 dark:border-gray-600">
+          @if (newDepartmentForm.get('name')?.invalid && newDepartmentForm.get('name')?.touched) {
+            <p class="text-red-500 text-xs mt-1">Department name is required.</p>
+          }
+        </div>
+        <div class="flex justify-end space-x-4 pt-4">
+          <button type="button" (click)="closeAddDepartmentModal()" class="px-6 py-2 rounded-lg font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 dark:text-gray-300 dark:bg-gray-600 dark:hover:bg-gray-500">Cancel</button>
+          <button type="submit" [disabled]="newDepartmentForm.invalid" class="px-6 py-2 rounded-lg font-semibold text-white bg-green-600 hover:bg-green-700 disabled:bg-green-400">Add Department</button>
+        </div>
+      </form>
+    </div>
+  </div>
+}
