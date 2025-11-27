@@ -23,9 +23,12 @@ const authGuard: CanActivateFn = (route, state) => {
   // FIX: Explicitly type the injected Router to resolve type inference issue.
   const router: Router = inject(Router);
 
-  if (authService.currentUser()) {
+  const current = authService.currentUser();
+  console.debug('[Guard:authGuard] currentUser=', current);
+  if (current) {
     return true;
   }
+  console.debug('[Guard:authGuard] not authenticated — redirecting to /login');
   return router.parseUrl('/login');
 };
 
@@ -34,11 +37,14 @@ const adminGuard: CanActivateFn = (route, state) => {
     // FIX: Explicitly type the injected Router to resolve type inference issue.
     const router: Router = inject(Router);
     const user = authService.currentUser();
-    if(user && 'role' in user && user.role === 'admin') {
-        return true;
-    }
-    // if not admin, redirect to login
-    return router.parseUrl('/login'); 
+  console.debug('[Guard:adminGuard] currentUser=', user);
+  if(user && 'role' in user && user.role === 'admin') {
+    console.debug('[Guard:adminGuard] user is admin — allowing access');
+    return true;
+  }
+  console.debug('[Guard:adminGuard] user is not admin — redirecting to /login');
+  // if not admin, redirect to login
+  return router.parseUrl('/login'); 
 };
 
 const superAdminGuard: CanActivateFn = (route, state) => {

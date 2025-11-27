@@ -1,4 +1,6 @@
 import '@angular/compiler';
+// Import application styles so the dev server/bundler serves them with the correct MIME type.
+import './src/style.css';
 import { bootstrapApplication } from '@angular/platform-browser';
 import { provideZonelessChangeDetection } from '@angular/core';
 import { AppComponent } from './src/app.component';

@@ -6,7 +6,6 @@ import { AuthService } from '../../services/auth.service';
 import { GeminiService } from '../../services/gemini.service';
 import { Employee } from '../../models/user.model';
 import { Coupon } from '../../models/coupon.model';
-import { RouterLink } from '@angular/router';
 
 // Declare jsPDF global to use the library from the script tag
 declare var jspdf: any;
@@ -17,7 +16,7 @@ declare var Html5Qrcode: any;
   selector: 'app-admin-dashboard',
   templateUrl: './admin-dashboard.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  imports: [CommonModule, ReactiveFormsModule],
   host: {
     '(document:click)': 'onDocumentClick($event)',
   }

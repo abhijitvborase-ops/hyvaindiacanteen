@@ -30,6 +30,7 @@ export class LoginComponent {
       const result = this.authService.login(loginId!, password!);
       if (result.success) {
         const user = this.authService.currentUser();
+        console.debug('[Login] login successful, currentUser=', user);
         if (user) {
           // Check if user is an Employee (has a 'role' property)
           if ('role' in user) {
@@ -41,9 +42,12 @@ export class LoginComponent {
             } else if (user.role === 'contractual employee') {
               route = '/contractual-employee';
             }
+            // Navigate to the resolved route
+            console.debug('[Login] navigating to', route);
             await this.router.navigate([route]);
           } else {
             // User is a Contractor, redirect to contractor dashboard
+            console.debug('[Login] navigating to /contractor');
             await this.router.navigate(['/contractor']);
           }
         }

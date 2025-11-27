@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { GoogleGenAI } from '@google/genai';
 import { Employee } from '../models/user.model';
 import { Coupon } from '../models/coupon.model';
 
@@ -7,11 +6,11 @@ import { Coupon } from '../models/coupon.model';
   providedIn: 'root',
 })
 export class GeminiService {
-  private ai: GoogleGenAI;
-
+  // The GoogleGenAI client is created lazily inside `generateInsights` so
+  // the service can be instantiated in browser environments where `process`
+  // and server-only libs are not available.
   constructor() {
-    // IMPORTANT: The API key is sourced from environment variables for security.
-    this.ai = new GoogleGenAI({ apiKey: process.env.API_KEY as string });
+    // no-op constructor to avoid accessing server-only globals at init
   }
 
   async generateInsights(question: string, employees: Employee[], coupons: Coupon[]): Promise<string> {
@@ -59,11 +58,20 @@ export class GeminiService {
     `;
 
     // 3. Call the Gemini API and handle the response.
+    // Determine API key from environment or a global (if explicitly provided).
+    const apiKey = (globalThis as any).__GENAI_API_KEY__ || (globalThis as any).process?.env?.API_KEY;
+
+    if (!apiKey) {
+      console.warn('GeminiService: API key not available in this runtime. Returning a placeholder message.');
+      return 'AI service is not configured in this environment.';
+    }
+
     try {
-      const response = await this.ai.models.generateContent({
-        model: model,
-        contents: prompt
-      });
+      // Dynamically import the server-side library only when needed.
+      const mod = await import('@google/genai');
+      const GoogleGenAI = (mod as any).GoogleGenAI;
+      const ai = new GoogleGenAI({ apiKey });
+      const response = await ai.models.generateContent({ model: model, contents: prompt });
       return response.text;
     } catch (error) {
       console.error('Gemini API call failed:', error);

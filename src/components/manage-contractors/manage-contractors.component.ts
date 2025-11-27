@@ -3,13 +3,12 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, Validators, FormGroup, FormControl } from '@angular/forms';
 import { DataService } from '../../services/data.service';
 import { Contractor } from '../../models/contractor.model';
-import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-manage-contractors',
   templateUrl: './manage-contractors.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink]
+  imports: [CommonModule, ReactiveFormsModule]
 })
 export class ManageContractorsComponent {
   private dataService = inject(DataService);
